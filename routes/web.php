@@ -16,3 +16,19 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::controller(PostController::class)
+    ->prefix('/posts')
+    ->as('posts.')
+    ->group(function() {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::prefix('{post}')->group(function() {
+            Route::get('/', 'show')->name('show');
+            Route::put('/', 'update')->name('update');
+            Route::delete('/', 'destroy')->name('destroy');
+            Route::delete('/force-delete', 'forceDestroy')->name('forceDestroy');
+            Route::post('/restore', 'restore')->withTrashed()->name('restore');
+        });
+
+    });
