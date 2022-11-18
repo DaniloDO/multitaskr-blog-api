@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Traits\Sluggable;
+use App\Models\Traits\Uidable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Post extends Model
 {
-    use HasFactory;
+    use HasFactory, Uidable, Sluggable, SoftDeletes;
 
 
     /**
@@ -24,6 +27,15 @@ class Post extends Model
      */
     protected $cast = [
         'published_at' => 'datetime'
+    ];
+
+    /**
+     * The attributes that should be mutated to dates.
+     *
+     * @var array
+     */
+    protected $dates = [
+        'published_at'
     ];
 
     /**
@@ -45,9 +57,17 @@ class Post extends Model
     } 
 
     /**
+     * Get all the comments from this post
+     */
+    public function comments() 
+    {
+        return $this->hasMany(Comment::class);
+    } 
+
+    /**
      * Get the user from this post 
      */
-    public function users() 
+    public function user() 
     {
         return $this->belongsTo(User::class);
     }
@@ -62,6 +82,10 @@ class Post extends Model
         return 'slug';
     }
 
-    
+    protected function slug() 
+    {
+        return 'title';
+    }
+
 
 }

@@ -14,15 +14,9 @@ class PostResource extends JsonResource
      */
     public function toArray($request)
     {
-        $user = $request->get('user', false);
-
-        if($user) {
-            $this->load('user');
-        }
-
-
         return array_merge(parent::toArray($request), [
-            'user' => new UserResource($this->whenLoaded('user'))
+            'user' => new UserResource($this->whenLoaded('user')),
+            'categories' =>  CategoryResource::collection(($this->whenLoaded('categories')))
         ]);
     }
 }

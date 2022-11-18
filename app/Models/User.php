@@ -52,13 +52,21 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all the comments from this user
+     */
+    public function comments() 
+    {
+        return $this->hasMany(Comment::class);
+    } 
+
+    /**
      * Get the route key for the model.
      *
      * @return string
      */
     public function getRouteKeyName()
     {
-        return 'email';
+        return 'uid';
     }
 
 }

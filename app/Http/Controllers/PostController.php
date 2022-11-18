@@ -19,10 +19,27 @@ class PostController extends Controller
      */
     public function index(Request $request)
     {
+        $query = Post::where('title', 'like', "%{$request->get('search')}%");
+
+        if($category_uid = $request->get('category_uid')) {
+            $query->whereHas('categories', function($q) use($category_uid) {
+                $q->where('uid', $category_uid);
+            });
+        };
+
+        if($request->get('user', false)) {
+            $query->with('user');
+        };
+
+        if($request->get('category', false)) {
+            $query->with('categories');
+        };
+
         return PostResource::collection(
-            Post::where('title', 'like', "%{$request->get('search')}%")
-                ->paginate($request->get('limit', 20))
+            $query->paginate($request->get('limit', 20))
         ); 
+
+        
     }
 
     /**
@@ -40,11 +57,12 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  Post $post
      * @return \Illuminate\Http\Response
      */
     public function show(Post $post)
     {
+        $post->load('user');
         return new PostResource($post);
     }
 
@@ -52,24 +70,28 @@ class PostController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  Post $post
      * @return \Illuminate\Http\Response
      */
     public function update(PostsRequest $request, Post $post)
     {
         $post->update($request->validated());
+        $post->load('user');
         return new PostResource($post);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  Post $post
      * @return \Illuminate\Http\Response
      */
     public function destroy(Post $post)
     {
         $post->delete();
+        return [
+            'success' => true
+        ];
     }
 
     /**
@@ -93,5 +115,8 @@ class PostController extends Controller
     public function forceDestroy(Post $post) 
     {
         $post->forceDelete();
+        return [
+            'success' => true
+        ];
     }
 }
