@@ -2,10 +2,9 @@
 
 namespace App\Http\Resources;
 
-use Illuminate\Support\Arr;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CategoryResource extends JsonResource
+class CommentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -15,7 +14,10 @@ class CategoryResource extends JsonResource
      */
     public function toArray($request)
     {
-        $array = Arr::except(parent::toArray($request) , ['id', 'deleted_at', 'pivot']);
-        return $array;
+
+        return array_merge(parent::toArray($request), [
+            'user' => new UserResource($this->whenLoaded('user')),
+            'post' => new PostResource($this->whenLoaded('post'))
+        ]);
     }
 }
