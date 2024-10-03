@@ -17,9 +17,18 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
+        $query = Category::where('name', 'like', "%{$request->get('search')}%");
+
+        if($post_uid = $request->get('post_uid')) {
+            $query->whereHas('posts', function($q) use($post_uid) {
+                $q->where('uid', $post_uid);
+            });
+        }
+        
         return CategoryResource::collection(
-            Category::all()
+            $query->paginate($request->get('limit', 20))
         );
+
     }
 
     /**
@@ -37,7 +46,7 @@ class CategoryController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  Category $category
      * @return \Illuminate\Http\Response
      */
     public function show(Category $category)
@@ -50,7 +59,7 @@ class CategoryController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  Category $category
      * @return \Illuminate\Http\Response
      */
     public function update(CategoriesRequest $request, Category $category)
@@ -62,12 +71,15 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param Category $category
      * @return \Illuminate\Http\Response
      */
     public function destroy(Category $category)
     {
         $category->delete();
+        return [
+            'success' => true
+        ];
     }
 
     /**
@@ -91,6 +103,9 @@ class CategoryController extends Controller
     public function forceDestroy(Category $category) 
     {
         $category->forceDelete();
+        return [
+            'success' => true
+        ];
     }
 
 }
